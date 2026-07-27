@@ -1,0 +1,39 @@
+name: KSIA 교육 모니터링
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # 30분마다 실행
+  workflow_dispatch:           # 수동 실행 버튼
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 패키지 설치
+        run: pip install requests beautifulsoup4
+
+      - name: 모니터 실행
+        env:
+          NAVER_EMAIL: ${{ secrets.NAVER_EMAIL }}
+          NAVER_PASSWORD: ${{ secrets.NAVER_PASSWORD }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: python ksia_monitor.py
+
+      - name: 강좌 목록 저장 (변경 시)
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "KSIA Monitor Bot"
+          git add ksia_known_courses.json
+          git diff --staged --quiet || git commit -m "강좌 목록 업데이트 $(date +'%Y-%m-%d %H:%M')"
+          git push
