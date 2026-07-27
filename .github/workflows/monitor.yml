@@ -2,8 +2,11 @@ name: KSIA 교육 모니터링
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # 30분마다 실행
-  workflow_dispatch:           # 수동 실행 버튼
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   monitor:
@@ -12,8 +15,6 @@ jobs:
     steps:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Python 설정
         uses: actions/setup-python@v5
