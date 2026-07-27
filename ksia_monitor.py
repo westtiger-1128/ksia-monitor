@@ -231,17 +231,19 @@ def send_email(new_courses):
       </div>
     </body></html>"""
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = CONFIG["naver_email"]
-    msg["To"] = CONFIG["notify_email"]
-    msg.attach(MIMEText(html_body, "html", "utf-8"))
+    recipients = [CONFIG["notify_email"], CONFIG["naver_email"]]
 
     try:
         with smtplib.SMTP_SSL("smtp.naver.com", 465) as server:
             server.login(CONFIG["naver_email"], CONFIG["naver_password"])
-            server.send_message(msg)
-        print(f"[완료] 이메일 발송 성공: {CONFIG['notify_email']}")
+            for recipient in recipients:
+                msg = MIMEMultipart("alternative")
+                msg["Subject"] = subject
+                msg["From"] = CONFIG["naver_email"]
+                msg["To"] = recipient
+                msg.attach(MIMEText(html_body, "html", "utf-8"))
+                server.send_message(msg)
+            print(f"[완료] 이메일 발송 성공: {', '.join(recipients)}")
     except Exception as e:
         print(f"[오류] 이메일 발송 실패: {e}")
 
