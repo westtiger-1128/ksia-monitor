@@ -269,8 +269,10 @@ def main():
     else:
         print("  → 새로운 교육 없음.")
 
-    # 현재 목록 저장 (ID → 강좌 정보)
-    updated = {c["id"]: c for c in current_courses}
+    # 현재 목록 저장 (기존 known과 병합 - IP 차단으로 일부만 수집돼도 기존 데이터 유지)
+    updated = dict(known)  # 기존 known 유지
+    for c in current_courses:
+        updated[c["id"]] = c  # 새로 발견된 강좌 추가/갱신
     save_known_courses(updated)
 
     print("  완료.\n")
